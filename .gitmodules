@@ -1,0 +1,12 @@
+[submodule "aip"]
+	path = aip
+	url = https://github.com/populationgenomics/automated-interpretation-pipeline.git
+[submodule "workflows"]
+	path = workflows
+	url = https://github.com/populationgenomics/production-pipelines.git
+[submodule "cpg-utils"]
+	path = cpg-utils
+	url = https://github.com/populationgenomics/cpg-utils.git
+[submodule "images"]
+	path = images
+	url = https://github.com/populationgenomics/images.git
