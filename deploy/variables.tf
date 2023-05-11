@@ -1,18 +1,27 @@
-variable "reference_base" {
-  type = string
+variable "deployment_name" {
+  description = "Master deployment name, used as a prefix to derive various resource names."
+  type        = string
+  validation {
+    condition = alltrue([
+      can(regex("^[0-9a-z]+$", var.deployment_name)),
+      length(var.deployment_name) >= 6,
+      length(var.deployment_name) <= 16
+    ])
+    error_message = "Variable deployment_name must be 6-16 characters lowercase alphanumeric."
+  }
 }
 
-variable "image_base" {
-  type = string
+variable "location" {
+  description = "Azure region in which to create all resources."
+  type        = string
 }
 
-variable "datasets" {
-  description = "Dictionary of dataset specifications to create resources for."
-  # Dictionary key is the dataset friendly name (e.g. 'fewgenomes')
-  type = map(object({
-    projectId = string       # Azure-unique lowercase alphanumeric string between 8 and 16 characters (e.g. 'fewgen001a')
-    region    = string       # region in which to deploy resources (e.g. 'eastus')
-    users     = list(string) # list of Hail SP display names that should get access to storage resources
-  }))
-  default = {}
+variable "tenant_id" {
+  description = "Tenant in which to create all resources."
+  type        = string
+}
+
+variable "subscription_id" {
+  description = "Subscription in which to create all resources."
+  type        = string
 }
