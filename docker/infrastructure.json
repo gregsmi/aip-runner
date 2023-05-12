@@ -1,0 +1,5 @@
+{
+    "cloud": "azure",
+    "container_registry": "msaip01acr.azurecr.io",
+    "storage_account": "msaip01sa"
+}

@@ -1,0 +1,62 @@
+name: Azure Hail Image Build
+on:
+  workflow_dispatch:
+    inputs:
+      hail_gitorg:
+        description: 'Hail repo organization'
+        required: true
+        default: "gregsmi"
+      hail_ref:
+        description: 'Hail repo ref (or commit SHA)'
+        required: true
+        default: "main"
+
+jobs:
+  deploy_server:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: "checkout AIP-runner repo"
+      uses: actions/checkout@v3
+
+    - name: "checkout Hail repo"
+      uses: actions/checkout@v3
+      with:
+        repository: "${{ github.event.inputs.hail_gitorg }}/hail"
+        ref: ${{ github.event.inputs.hail_ref }}
+        path: "hail"
+
+    - name: "Determine Hail SHA"
+      run: |
+        cd hail
+        echo "HAIL_GITORG=${{ github.event.inputs.hail_gitorg }}" >> $GITHUB_ENV
+        echo "HAIL_SHA=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
+
+    # Set up deployment location targets as environment variables based on deploy-config.json.
+    - name: 'Set deployment location variables'
+      run: |
+        CONFIG_FILE=infrastructure.json
+        AZURE_CR=$(jq -r .container_registry $CONFIG_FILE)
+
+        # Set up container registry authentication for image push.
+        echo "CLIENT_ID=$(echo '${{ secrets.AZURE_CREDENTIALS }}' | jq -r '.clientId')" >> $GITHUB_ENV
+        echo "CLIENT_PWD=$(echo '${{ secrets.AZURE_CREDENTIALS }}' | jq -r '.clientSecret')" >> $GITHUB_ENV
+        echo "AZURE_CR=$AZURE_CR" >> $GITHUB_ENV
+
+        # Set up analyis-runner image names and web endpoints.
+        echo "HAIL_DRIVER_IMAGE=$AZURE_CR/common/hail-driver" >> $GITHUB_ENV
+        echo "IMAGE_TAG=${HAIL_GITORG}-${HAIL_SHA}" >> $GITHUB_ENV
+
+    - name: 'Build and push driver image'
+      uses: azure/docker-login@v1
+      with:
+        login-server: ${{ env.AZURE_CR }}
+        username: ${{ env.CLIENT_ID }}
+        password: ${{ env.CLIENT_PWD }}
+    - run: |
+        docker build \
+          --tag ${HAIL_DRIVER_IMAGE}:${IMAGE_TAG} \
+          --build-arg HAIL_GITORG=$HAIL_GITORG \
+          --build-arg HAIL_SHA=$HAIL_SHA \
+          -f docker/Dockerfile.hail docker
+        docker push ${HAIL_DRIVER_IMAGE}:${IMAGE_TAG}
