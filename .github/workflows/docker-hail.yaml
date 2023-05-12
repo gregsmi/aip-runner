@@ -12,7 +12,7 @@ on:
         default: "main"
 
 jobs:
-  deploy_server:
+  build_image:
     runs-on: ubuntu-latest
 
     steps:
