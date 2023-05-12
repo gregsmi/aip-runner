@@ -44,8 +44,8 @@ jobs:
         echo "AZURE_CR=$AZURE_CR" >> $GITHUB_ENV
 
         # Set up analyis-runner image names and web endpoints.
-        echo "HAIL_DRIVER_IMAGE=$AZURE_CR/common/hail-driver" >> $GITHUB_ENV
-        echo "IMAGE_TAG=${HAIL_GITORG}-${HAIL_SHA}" >> $GITHUB_ENV
+        echo "HAIL_BASE_IMAGE=$AZURE_CR/hail/${HAIL_GITORG}" >> $GITHUB_ENV
+        echo "IMAGE_TAG=${HAIL_SHA}" >> $GITHUB_ENV
 
     - name: 'Build and push driver image'
       uses: azure/docker-login@v1
@@ -55,8 +55,10 @@ jobs:
         password: ${{ env.CLIENT_PWD }}
     - run: |
         docker build \
-          --tag ${HAIL_DRIVER_IMAGE}:${IMAGE_TAG} \
+          --tag ${HAIL_BASE_IMAGE}:${IMAGE_TAG} \
+          --tag ${HAIL_BASE_IMAGE}:latest \
           --build-arg HAIL_GITORG=$HAIL_GITORG \
           --build-arg HAIL_SHA=$HAIL_SHA \
           -f docker/Dockerfile.hail docker
         docker push ${HAIL_DRIVER_IMAGE}:${IMAGE_TAG}
+        docker push ${HAIL_DRIVER_IMAGE}:latest
