@@ -23,7 +23,7 @@ RUN apt update && DEBIAN_FRONTEND=noninteractive apt install -y \
         python3 \
         skopeo \
         wget \
-        zip && \
+        zip \
         # from Dockerfile.hail
         build-essential \
         curl \
