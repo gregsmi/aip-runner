@@ -35,7 +35,7 @@ jobs:
     # Set up deployment location targets as environment variables based on deploy-config.json.
     - name: 'Set deployment location variables'
       run: |
-        CONFIG_FILE=infrastructure.json
+        CONFIG_FILE=docker/infrastructure.json
         AZURE_CR=$(jq -r .container_registry $CONFIG_FILE)
 
         # Set up container registry authentication for image push.
