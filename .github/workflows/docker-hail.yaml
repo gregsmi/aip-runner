@@ -60,5 +60,5 @@ jobs:
           --build-arg HAIL_GITORG=$HAIL_GITORG \
           --build-arg HAIL_SHA=$HAIL_SHA \
           -f docker/Dockerfile.hail docker
-        docker push ${HAIL_DRIVER_IMAGE}:${IMAGE_TAG}
-        docker push ${HAIL_DRIVER_IMAGE}:latest
+        docker push ${HAIL_BASE_IMAGE}:${IMAGE_TAG}
+        docker push ${HAIL_BASE_IMAGE}:latest
